@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Low Touch — Maio 2026 | Cora</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --pink:     #FE3E6D;
+  --pink-lt:  #FFE8EF;
+  --pink-mid: #ffa0b8;
+  --bg:       #F0F4F8;
+  --dark:     #202020;
+  --body:     #535353;
+  --ink:      #1a1a1a;
+  --rule:     #e2e2e2;
+  --white:    #ffffff;
+  --green:    #3db87a;
+  --amber:    #e8940a;
+  --serif:    'Playfair Display',Georgia,serif;
+  --sans:     'Inter',system-ui,sans-serif;
+}
+body{background:var(--bg);font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased;min-height:100vh}
+.page{max-width:940px;margin:0 auto;background:var(--white);box-shadow:0 2px 32px rgba(0,0,0,.07)}
+
+@media print{
+  body{background:white}
+  .no-print{display:none!important}
+  .page{box-shadow:none;max-width:100%}
+}
+
+/* ── TOPBAR ── */
+.topbar{background:var(--dark);padding:10px 40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.topbar-left{display:flex;align-items:center;gap:10px;font-size:10px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:rgba(255,255,255,.5)}
+.topbar-dot{width:7px;height:7px;border-radius:50%;background:var(--pink);flex-shrink:0}
+.topbar-right{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tbtn{font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:5px 14px;border-radius:4px;cursor:pointer;border:none;transition:opacity .15s}
+.tbtn:hover{opacity:.8}
+.tbtn-ghost{background:rgba(255,255,255,.1);color:rgba(255,255,255,.85)}
+.tbtn-pink{background:var(--pink);color:#fff}
+
+/* ── FILTER STRIP ── */
+.fstrip{padding:10px 40px;background:var(--white);border-bottom:1px solid var(--rule);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.flbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#aaa;margin-right:2px}
+.fpill{font-family:var(--sans);font-size:10px;font-weight:500;padding:3px 12px;border-radius:20px;border:1px solid var(--rule);background:var(--white);color:var(--body);cursor:pointer;transition:all .12s}
+.fpill:hover{border-color:var(--pink);color:var(--pink)}
+.fpill.on{background:var(--pink);border-color:var(--pink);color:#fff}
+.fsep{width:1px;height:16px;background:var(--rule)}
+.fsel{font-family:var(--sans);font-size:10px;padding:4px 8px;border:1px solid var(--rule);border-radius:4px;color:var(--body);background:var(--white);cursor:pointer}
+
+/* ── HEADER ── */
+.hdr{padding:32px 40px 26px;background:var(--white);border-bottom:1px solid var(--rule);position:relative}
+.hdr-eye{font-size:10px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--pink);margin-bottom:6px}
+.hdr-title{font-family:var(--serif);font-size:40px;font-weight:700;line-height:1.1;color:var(--ink)}
+.hdr-title em{font-style:italic;color:var(--pink)}
+.hdr-sub{margin-top:6px;font-size:11px;color:#aaa;font-weight:400}
+.hdr-badge{position:absolute;top:32px;right:40px;font-size:9px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--pink);border:1.5px dashed var(--pink);padding:4px 13px;border-radius:20px}
+
+/* ── SECTION ── */
+.sec{padding:28px 40px;border-bottom:1px solid var(--rule)}
+.sec:last-child{border-bottom:none}
+.sec-ttl{font-size:9px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--pink);margin-bottom:18px}
+
+/* ── KPI ROW ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.kpi-card{background:var(--white);border:1px solid var(--rule);border-radius:10px;padding:18px 16px 16px;transition:box-shadow .15s}
+.kpi-card:hover{box-shadow:0 4px 16px rgba(254,62,109,.1)}
+.kpi-lbl{font-size:11px;font-weight:400;color:var(--body);line-height:1.4;margin-bottom:8px}
+.kpi-val{font-family:var(--serif);font-size:40px;font-weight:700;line-height:1;color:var(--pink)}
+.kpi-val.black{color:var(--ink)}
+.kpi-val.amber{color:var(--amber)}
+.kpi-sub{font-size:10px;color:#aaa;margin-top:6px;line-height:1.5}
+
+/* ── TWO COL ── */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+/* ── INNER CARD ── */
+.icard{background:var(--white);border:1px solid var(--rule);border-radius:10px;padding:20px}
+
+/* ── OKR ── */
+.okr-item{margin-bottom:18px}
+.okr-item:last-child{margin-bottom:0}
+.okr-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px}
+.okr-name{font-size:12px;font-weight:500;color:var(--ink)}
+.okr-pct{font-size:13px;font-weight:700;color:var(--pink)}
+.okr-pct.amber{color:var(--amber)}
+.okr-track{height:4px;background:var(--pink-lt);border-radius:2px;margin-bottom:5px}
+.okr-bar{height:100%;border-radius:2px;background:var(--pink);transition:width .8s ease}
+.okr-bar.amber{background:var(--amber)}
+.okr-meta{font-size:10px;color:#aaa}
+
+/* ── HORIZONTAL BARS (status) ── */
+.hbar-item{margin-bottom:10px}
+.hbar-item:last-child{margin-bottom:0}
+.hbar-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px}
+.hbar-lbl{font-size:11px;color:var(--body)}
+.hbar-nums{font-size:10px;color:#aaa}
+.hbar-bg{height:9px;background:#f0f0f0;border-radius:5px;overflow:hidden}
+.hbar-fill{height:100%;border-radius:5px;transition:width .7s ease}
+
+/* ── CHART ── */
+.chart-wrap{border:1px solid var(--rule);border-radius:10px;padding:20px}
+.clegend{display:flex;gap:14px;margin-bottom:12px;flex-wrap:wrap}
+.cleg{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--body)}
+.cleg-sq{width:11px;height:11px;border-radius:2px;flex-shrink:0}
+
+/* ── QUAL ── */
+.qual-wrap{background:var(--white);border:1px solid var(--rule);border-radius:10px;padding:24px 24px 8px}
+.qual-item{display:flex;gap:14px;align-items:flex-start;padding-bottom:18px;margin-bottom:18px;border-bottom:1px solid var(--rule)}
+.qual-item:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.qual-ico-wrap{width:34px;height:34px;background:var(--pink-lt);border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:15px;margin-top:1px}
+.qual-body{flex:1}
+.qual-trow{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
+.qual-title{font-size:13px;font-weight:600;color:var(--ink)}
+.qual-text{font-size:12px;color:var(--body);line-height:1.65;font-weight:400}
+.qual-ebtn{font-size:10px;color:#bbb;cursor:pointer;background:none;border:none;padding:2px 6px;border-radius:3px;font-family:var(--sans)}
+.qual-ebtn:hover{background:var(--pink-lt);color:var(--pink)}
+.qual-ta{width:100%;font-size:12px;color:var(--body);line-height:1.65;font-family:var(--sans);border:1.5px solid var(--pink-lt);border-radius:5px;padding:8px 10px;resize:vertical;min-height:56px;outline:none;background:var(--white)}
+.qual-ta:focus{border-color:var(--pink)}
+.qual-sbtn{margin-top:6px;padding:4px 14px;background:var(--pink);color:#fff;border:none;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;font-family:var(--sans)}
+
+/* ── PARTIAL SECTION ── */
+.partial-hdr{padding:28px 40px 0;display:flex;align-items:flex-end;justify-content:space-between;background:var(--white)}
+.partial-eye{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--green);display:block;margin-bottom:5px}
+.partial-title{font-family:var(--serif);font-size:28px;font-weight:700;color:var(--ink)}
+.partial-title em{font-style:italic;color:var(--pink)}
+.partial-badge{display:inline-flex;align-items:center;gap:6px;font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:5px 13px;border-radius:20px;border:1.5px dashed var(--pink-mid);color:var(--pink)}
+.dot-pulse{width:6px;height:6px;border-radius:50%;background:var(--pink);animation:pulse 1.6s ease-in-out infinite;display:inline-block}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.2}}
+
+/* ── HISTORY ── */
+.hist-wrap{display:none}
+.hist-wrap.open{display:block}
+.hist-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.htbl{width:100%;border-collapse:collapse;font-size:11px}
+.htbl th{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#aaa;padding:7px 8px;border-bottom:1.5px solid var(--rule);text-align:left}
+.htbl td{padding:9px 8px;border-bottom:1px solid #f5f5f5;color:var(--body)}
+.htbl tr:last-child td{border-bottom:none}
+.htbl tr:hover td{background:#fafafa}
+.hval{color:var(--pink);font-weight:600}
+.delbtn{background:none;border:none;cursor:pointer;color:#ccc;font-size:12px;padding:2px 4px}
+.delbtn:hover{color:var(--pink)}
+.src-pill{display:inline-block;padding:1px 7px;border-radius:8px;font-size:9px;font-weight:600}
+.sp-sheets{background:#e8f5e9;color:#2e7d32}
+.sp-local{background:var(--pink-lt);color:var(--pink)}
+
+/* ── MODAL ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:var(--white);border-radius:12px;padding:30px;width:500px;max-width:93vw;box-shadow:0 30px 80px rgba(0,0,0,.18)}
+.modal-ttl{font-family:var(--serif);font-size:22px;font-weight:700;color:var(--ink);margin-bottom:3px}
+.modal-sub{font-size:11px;color:#aaa;margin-bottom:20px}
+.mrow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mf{margin-bottom:12px}
+.mf label{display:block;font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--body);margin-bottom:3px}
+.mf input,.mf textarea{width:100%;padding:8px 11px;border:1.5px solid var(--rule);border-radius:6px;font-family:var(--sans);font-size:12px;color:var(--ink);outline:none;transition:border-color .12s}
+.mf input:focus,.mf textarea:focus{border-color:var(--pink)}
+.mf textarea{min-height:62px;resize:vertical}
+.mbanner{padding:9px 12px;border-radius:5px;font-size:11px;font-weight:500;margin-top:10px;display:none}
+.mbanner.ok{background:#e8f5e9;color:#2e7d32;display:block}
+.mbanner.err{background:var(--pink-lt);color:var(--pink);display:block}
+.mbanner.ld{background:#f5f5f5;color:var(--body);display:block}
+.mbtns{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
+.mc{padding:8px 20px;background:#f5f5f5;border:1px solid var(--rule);border-radius:6px;cursor:pointer;font-size:11px;font-weight:500;font-family:var(--sans)}
+.ms{padding:8px 20px;background:var(--pink);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600;font-family:var(--sans)}
+.ms:hover{background:#d9255a}
+.ms:disabled{opacity:.5;cursor:not-allowed}
+
+/* ── FOOTER ── */
+.footer{padding:16px 40px;display:flex;justify-content:space-between;align-items:center;font-size:10px;color:#bbb;background:var(--white);border-top:1px solid var(--rule)}
+.footer strong{color:var(--body);font-weight:500}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar no-print">
+  <div class="topbar-left">
+    <span class="topbar-dot"></span>
+    OKRs · Q2/2026 · Diretoria
+    <span style="opacity:.25">|</span>
+    Low Touch
+  </div>
+  <div class="topbar-right">
+    <button class="tbtn tbtn-ghost" onclick="toggleHist()">📋 Histórico</button>
+    <button class="tbtn tbtn-ghost" onclick="openModal()">💾 Salvar Snapshot</button>
+    <button class="tbtn tbtn-pink"  onclick="window.print()">🖨 Exportar PDF</button>
+  </div>
+</div>
+
+<!-- FILTER STRIP -->
+<div class="fstrip no-print">
+  <span class="flbl">Snapshot</span>
+  <select class="fsel" id="snap-sel" onchange="loadSnap(this.value)">
+    <option value="">— Carregar snapshot —</option>
+  </select>
+  <button class="fpill" onclick="clearSnap()" style="padding:3px 10px">✕</button>
+</div>
+
+<!-- PAGE -->
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="hdr-eye">OKRs · Q2/2026 · Diretoria</div>
+    <div class="hdr-title">Low Touch — <em id="hdr-period">Maio 2026</em></div>
+    <div class="hdr-sub">Atualizado em: <span id="hdr-date">25/05/2026</span> · Ciclo parcial em aberto</div>
+    <div class="hdr-badge">Ciclo parcial em aberto</div>
+  </div>
+
+  <!-- KPIs PRINCIPAIS -->
+  <div class="sec">
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-lbl">Coraliados Indicantes</div>
+        <div class="kpi-val" id="k-cor">1.309</div>
+        <div class="kpi-sub" id="k-cor-s">semana 25/05 · meta mensal: 1.950</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-lbl">New Actives</div>
+        <div class="kpi-val black" id="k-act">1.922</div>
+        <div class="kpi-sub">semana 25/05 · meta mensal: 1.967</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-lbl">Receita acumulada (mês)</div>
+        <div class="kpi-val amber" style="font-size:30px" id="k-rec">R$ 2,4M</div>
+        <div class="kpi-sub">semana 25/05 · ciclo em aberto</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-lbl">Indicações geradas</div>
+        <div class="kpi-val black" id="k-ind">4.203</div>
+        <div class="kpi-sub">semana 25/05 · acumulado no mês</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OKRs + STATUS -->
+  <div class="sec">
+    <div class="two">
+
+      <!-- OKR -->
+      <div class="icard">
+        <div class="sec-ttl">OKRs do Q2</div>
+
+        <div class="okr-item">
+          <div class="okr-row">
+            <span class="okr-name">KR1 — New Actives Low Touch</span>
+            <span class="okr-pct" id="p1">—</span>
+          </div>
+          <div class="okr-track"><div class="okr-bar" id="b1" style="width:0"></div></div>
+          <div class="okr-meta">Meta Q2: 5.900 · Abr 2.395 · Mai 1.922 · Jun — · Meta mensal: 1.967</div>
+        </div>
+
+        <div class="okr-item">
+          <div class="okr-row">
+            <span class="okr-name">KR2 — Coraliados Indicantes</span>
+            <span class="okr-pct" id="p2">—</span>
+          </div>
+          <div class="okr-track"><div class="okr-bar" id="b2" style="width:0"></div></div>
+          <div class="okr-meta">Meta Q2: 5.850 · Abr 1.652 · Mai 1.309 · Jun — · Meta mensal: 1.950</div>
+        </div>
+
+      </div>
+
+      <!-- STATUS BARRAS -->
+      <div class="icard">
+        <div class="sec-ttl">Indicadores — Semana 25/05/2026</div>
+        <div id="status-bars"></div>
+        <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--rule)">
+          <div style="font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:#aaa;margin-bottom:10px">Taxas de Conversão — Semana 25/05/2026</div>
+          <div id="conv-bars"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GRÁFICO SEMANAL -->
+  <div class="sec">
+    <div class="chart-wrap">
+      <div class="sec-ttl">New Actives e Coraliados Indicantes por Semana</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+        <div class="clegend" style="margin-bottom:0">
+          <div class="cleg"><div class="cleg-sq" style="background:var(--pink)"></div>New Actives</div>
+          <div class="cleg"><div class="cleg-sq" style="background:var(--pink-lt);border:1px solid var(--pink-mid)"></div>Coraliados Indicantes</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+          <span style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#aaa">Ano</span>
+          <button class="fpill on" id="wy-all"  onclick="setWFilter(this,'year','all')">Tudo</button>
+          <button class="fpill"    id="wy-2025" onclick="setWFilter(this,'year','2025')">2025</button>
+          <button class="fpill"    id="wy-2026" onclick="setWFilter(this,'year','2026')">2026</button>
+          <div style="width:1px;height:14px;background:var(--rule)"></div>
+          <span style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#aaa">Trim.</span>
+          <button class="fpill" id="wq-q1" onclick="setWFilter(this,'q','Q1')">Q1</button>
+          <button class="fpill" id="wq-q2" onclick="setWFilter(this,'q','Q2')">Q2</button>
+          <button class="fpill" id="wq-q3" onclick="setWFilter(this,'q','Q3')">Q3</button>
+          <button class="fpill" id="wq-q4" onclick="setWFilter(this,'q','Q4')">Q4</button>
+        </div>
+      </div>
+      <canvas id="wChart" height="165"></canvas>
+    </div>
+  </div>
+
+  <!-- GRÁFICO MENSAL -->
+  <div class="sec">
+    <div class="chart-wrap">
+      <div class="sec-ttl" id="monthly-title">Evolução Mensal — Set/2024 → Abr/2026</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+        <div class="clegend" style="margin-bottom:0">
+          <div class="cleg"><div class="cleg-sq" style="background:var(--pink)"></div>New Actives</div>
+          <div class="cleg"><div class="cleg-sq" style="background:var(--pink-lt);border:1px solid var(--pink-mid)"></div>Coraliados Indicantes</div>
+          <div class="cleg"><div class="cleg-sq" style="background:var(--amber)"></div>Receita</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+          <span style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#aaa">Ano</span>
+          <button class="fpill on" id="my-all"  onclick="setMFilter(this,'year','all')">Tudo</button>
+          <button class="fpill"    id="my-2024" onclick="setMFilter(this,'year','2024')">2024</button>
+          <button class="fpill"    id="my-2025" onclick="setMFilter(this,'year','2025')">2025</button>
+          <button class="fpill"    id="my-2026" onclick="setMFilter(this,'year','2026')">2026</button>
+          <div style="width:1px;height:14px;background:var(--rule)"></div>
+          <span style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#aaa">Trim.</span>
+          <button class="fpill"    id="mq-q1" onclick="setMFilter(this,'q','Q1')">Q1</button>
+          <button class="fpill"    id="mq-q2" onclick="setMFilter(this,'q','Q2')">Q2</button>
+          <button class="fpill"    id="mq-q3" onclick="setMFilter(this,'q','Q3')">Q3</button>
+          <button class="fpill"    id="mq-q4" onclick="setMFilter(this,'q','Q4')">Q4</button>
+        </div>
+      </div>
+      <canvas id="mChart" height="165"></canvas>
+    </div>
+  </div>
+
+  <!-- QUALITATIVO -->
+  <div class="sec">
+    <div class="qual-wrap">
+      <div class="sec-ttl">Percepções Qualitativas</div>
+      <div id="qual-list"></div>
+    </div>
+    <div style="margin-top:12px;text-align:right" class="no-print">
+      <button class="fpill" onclick="addQual()">+ Adicionar percepção</button>
+    </div>
+  </div>
+
+  <!-- PRÉVIA MAIO -->
+  <div style="border-top:1px solid var(--rule)">
+    <div class="partial-hdr">
+      <div>
+        <span class="partial-eye">Prévia · Ciclo em andamento</span>
+        <div class="partial-title">Maio 2026 — <em>Forecast</em></div>
+      </div>
+      <div class="partial-badge no-print"><span class="dot-pulse"></span> Dados Parciais</div>
+    </div>
+
+    <div class="sec" style="padding-top:20px">
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-lbl">New Actives em maio</div>
+          <div class="kpi-val black">1.922</div>
+          <div class="kpi-sub">acumulado até 25/05</div>
+          <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--rule)">
+            <div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#aaa;margin-bottom:4px">Forecast fechamento</div>
+            <div style="font-family:var(--serif);font-size:22px;font-weight:700;color:#3db87a">2.280</div>
+            <div style="font-size:10px;color:#aaa">116% da meta · pace +597/sem</div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-lbl">Coraliados Indicantes</div>
+          <div class="kpi-val">1.309</div>
+          <div class="kpi-sub">acumulado até 25/05</div>
+          <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--rule)">
+            <div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#aaa;margin-bottom:4px">Forecast fechamento</div>
+            <div style="font-family:var(--serif);font-size:22px;font-weight:700;color:#e8940a">1.545</div>
+            <div style="font-size:10px;color:#aaa">79% da meta · pace +393/sem</div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-lbl">Indicações geradas</div>
+          <div class="kpi-val black">4.203</div>
+          <div class="kpi-sub">acumulado até 25/05</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-lbl">Receita acumulada</div>
+          <div class="kpi-val amber" style="font-size:30px">R$ 2,4M</div>
+          <div class="kpi-sub">acumulado até 25/05</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec" style="padding-top:8px">
+      <div class="two">
+
+        <!-- SEMANAS MAIO -->
+        <div class="icard">
+          <div class="sec-ttl">Semanas de Maio 2026</div>
+          <div id="maio-bars"></div>
+        </div>
+
+        <!-- LEITURA PARCIAL -->
+        <div class="icard">
+          <div class="sec-ttl">Leitura Parcial de Maio</div>
+          <div id="partial-reads"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTÓRICO -->
+  <div class="sec hist-wrap" id="hist-sec">
+    <div class="hist-hdr">
+      <div class="sec-ttl" style="margin-bottom:0">Histórico de Snapshots</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span id="src-pill" class="src-pill sp-sheets">📊 Google Sheets</span>
+        <button class="fpill no-print" onclick="refreshHist()" style="font-size:9px;padding:3px 10px">↻ Atualizar</button>
+      </div>
+    </div>
+    <div id="hist-loading" style="display:none;text-align:center;padding:16px;font-size:11px;color:#aaa">Carregando...</div>
+    <table class="htbl" id="hist-tbl">
+      <thead><tr>
+        <th>Período</th><th>New Actives</th><th>Coraliados</th>
+        <th>Receita</th><th>Indicações</th><th>Nota</th><th>Fonte</th>
+        <th class="no-print"></th>
+      </tr></thead>
+      <tbody id="hist-body">
+        <tr><td colspan="8" style="text-align:center;padding:20px;color:#bbb">Nenhum snapshot salvo.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    <span>Dados parciais — D30 de maio ainda em andamento</span>
+    <strong>Low Touch · Q2/2026</strong>
+  </div>
+</div><!-- /page -->
+
+<!-- MODAL -->
+<div class="overlay" id="modal-ov">
+  <div class="modal">
+    <div class="modal-ttl">Salvar Snapshot</div>
+    <div class="modal-sub">Salvo no Google Sheets (aba <strong>Snapshots_LT</strong>) + backup local no navegador.</div>
+    <div class="mf" style="margin-bottom:14px">
+      <label>Período de referência</label>
+      <input id="sn-per" value="Semana 25/05/2026">
+    </div>
+    <div class="mrow">
+      <div class="mf"><label>New Actives</label><input id="sn-act" type="number" value="1922"></div>
+      <div class="mf"><label>Coraliados Indicantes</label><input id="sn-cor" type="number" value="1309"></div>
+      <div class="mf"><label>Indicações</label><input id="sn-ind" type="number" value="4203"></div>
+      <div class="mf"><label>Receita</label><input id="sn-rec" value="R$ 2.440.000"></div>
+    </div>
+    <div class="mf"><label>Nota / observação</label><textarea id="sn-nota" placeholder="Observações sobre o período..."></textarea></div>
+    <div id="mbanner" class="mbanner"></div>
+    <div class="mbtns">
+      <button class="mc" onclick="closeModal()">Cancelar</button>
+      <button class="ms" id="save-btn" onclick="saveSnap()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════
+//  DADOS
+// ════════════════════════════════════════
+const WEEKLY=[
+  {w:'12/01',a:381, c:642,  r:0,       i:0},
+  {w:'19/01',a:631, c:1023, r:1430000, i:2448},
+  {w:'26/01',a:1085,c:1409, r:1620000, i:2672},
+  {w:'31/01',a:1477,c:1700, r:2120000, i:3451},
+  {w:'10/02',a:652, c:837,  r:1380000, i:1546},
+  {w:'18/02',a:1120,c:1265, r:1320000, i:2472},
+  {w:'24/02',a:1403,c:1519, r:1800000, i:3109},
+  {w:'02/03',a:27,  c:127,  r:5750,    i:174},
+  {w:'09/03',a:601, c:669,  r:623000,  i:1086},
+  {w:'16/03',a:1084,c:1101, r:1250000, i:2170},
+  {w:'23/03',a:1526,c:1456, r:1400000, i:3119},
+  {w:'30/03',a:2295,c:1897, r:3030000, i:5603},
+  {w:'06/04',a:301, c:342,  r:338000,  i:745},
+  {w:'13/04',a:906, c:814,  r:1080000, i:1964},
+  {w:'20/04',a:1471,c:1212, r:1830000, i:3209},
+  {w:'27/04',a:1941,c:1448, r:2300000, i:4416},
+  {w:'29/04',a:2152,c:1565, r:2330000, i:4977},
+  {w:'04/05',a:131, c:131,  r:45700,   i:352},
+  {w:'11/05',a:872, c:621,  r:436000,  i:1796},
+  {w:'18/05',a:1358,c:1023, r:1600000, i:2957},
+  {w:'25/05',a:1922,c:1309, r:2440000, i:4203},
+];
+const MONTHLY=[
+  {m:'set/24',a:1088,c:1082,r:0},{m:'out/24',a:1158,c:1236,r:0},
+  {m:'nov/24',a:1221,c:1130,r:0},{m:'dez/24',a:1321,c:1021,r:0},
+  {m:'jan/25',a:2413,c:1842,r:1170000},{m:'fev/25',a:2310,c:1440,r:1180000},
+  {m:'mar/25',a:2708,c:1300,r:1124000},{m:'abr/25',a:1572,c:1170,r:1141000},
+  {m:'mai/25',a:2181,c:1298,r:1560000},{m:'jun/25',a:1237,c:1235,r:1880000},
+  {m:'jul/25',a:1195,c:1374,r:1770000},{m:'ago/25',a:1398,c:1419,r:1930000},
+  {m:'set/25',a:1259,c:1508,r:2090000},{m:'out/25',a:1248,c:1527,r:2010000},
+  {m:'nov/25',a:1094,c:1322,r:1800000},{m:'dez/25',a:1012,c:1282,r:2230000},
+  {m:'jan/26',a:1543,c:1700,r:2500000},{m:'fev/26',a:1806,c:1776,r:2280000},
+  {m:'mar/26',a:2500,c:1983,r:3170000},{m:'abr/26',a:2395,c:1652,r:2890000},
+];
+const OKR={act:{meta:5900,real:4317},cor:{meta:5850,real:2961}};
+// ⚠️  Cole aqui a URL gerada ao publicar o Apps Script (ver instruções)
+const APPS_URL = 'https://script.google.com/a/macros/cora.com.br/s/AKfycbxBGLxqhLqtD_2oO7bBVMCPjxHnLggYmHdUPgYZtf-6anjqY7c0PovDrrfLuSbjGvTWzw/exec';
+const F="'Inter',system-ui,sans-serif";
+
+// ════════════════════════════════════════
+//  STORAGE HÍBRIDO
+// ════════════════════════════════════════
+const lsKey='lt_snaps_v3';
+function lsLoad(){return JSON.parse(localStorage.getItem(lsKey)||'[]')}
+function lsSave(d){localStorage.setItem(lsKey,JSON.stringify(d))}
+
+async function sheetsAppend(snap){
+  if(!APPS_URL) return false;
+  try{
+    // Sem Content-Type header — evita preflight CORS bloqueado pelo Google
+    const r=await fetch(APPS_URL, {
+      method:'POST',
+      body:JSON.stringify({acao:'salvar',...snap})
+    });
+    const d=await r.json();
+    return d.ok===true;
+  }catch(e){console.warn('sheetsAppend error:',e);return false}
+}
+
+async function sheetsRead(){
+  if(!APPS_URL) return null;
+  try{
+    const url = APPS_URL + '?t=' + Date.now();
+    const r=await fetch(url);
+    const d=await r.json();
+    return d.ok && Array.isArray(d.snaps) ? d.snaps : null;
+  }catch(e){console.warn('sheetsRead error:',e);return null}
+}
+
+// ════════════════════════════════════════
+//  MODAL
+// ════════════════════════════════════════
+function openModal(){document.getElementById('modal-ov').classList.add('open');hideBanner()}
+function closeModal(){document.getElementById('modal-ov').classList.remove('open')}
+function showBanner(msg,type){const b=document.getElementById('mbanner');b.textContent=msg;b.className='mbanner '+type}
+function hideBanner(){document.getElementById('mbanner').className='mbanner'}
+
+async function saveSnap(){
+  const btn=document.getElementById('save-btn');
+  btn.disabled=true;
+  if(!APPS_URL){
+    showBanner('⚠️ URL do Apps Script não configurada. Salvando apenas localmente.','err');
+  } else {
+    showBanner('⏳ Salvando no Google Sheets...','ld');
+  }
+  const snap={
+    id:Date.now(),
+    per:document.getElementById('sn-per').value,
+    act:+document.getElementById('sn-act').value,
+    cor:+document.getElementById('sn-cor').value,
+    ind:+document.getElementById('sn-ind').value,
+    rec:document.getElementById('sn-rec').value,
+    nota:document.getElementById('sn-nota').value,
+    at:new Date().toLocaleDateString('pt-BR'),
+    src:'local'
+  };
+  const local=lsLoad();
+  local.unshift(snap);lsSave(local);
+  const ok=await sheetsAppend(snap);
+  if(ok){snap.src='sheets';local[0]=snap;lsSave(local);showBanner('✅ Salvo no Google Sheets + backup local.','ok')}
+  else{showBanner('⚠️ Sheets indisponível. Salvo localmente como backup.','err')}
+  btn.disabled=false;
+  renderHist(local);updateSel(local);
+  setTimeout(closeModal,2600);
+}
+
+// ════════════════════════════════════════
+//  HISTÓRICO
+// ════════════════════════════════════════
+async function refreshHist(){
+  document.getElementById('hist-loading').style.display='block';
+  document.getElementById('hist-body').innerHTML='';
+  const sd=await sheetsRead();
+  let snaps;
+  if(sd&&sd.length>0){
+    snaps=sd.map(s=>({...s,src:'sheets'}));lsSave(snaps);
+    setSrcPill('📊 Google Sheets','sp-sheets');
+  }else if(sd===null){
+    snaps=lsLoad();setSrcPill('💾 Backup local','sp-local');
+  }else{
+    snaps=lsLoad();setSrcPill('💾 Backup local','sp-local');
+  }
+  document.getElementById('hist-loading').style.display='none';
+  renderHist(snaps);updateSel(snaps);
+}
+function setSrcPill(txt,cls){const p=document.getElementById('src-pill');p.textContent=txt;p.className='src-pill '+cls}
+
+function renderHist(snaps){
+  if(!snaps)snaps=lsLoad();
+  const tb=document.getElementById('hist-body');
+  if(!snaps.length){tb.innerHTML='<tr><td colspan="8" style="text-align:center;padding:20px;color:#bbb">Nenhum snapshot salvo.</td></tr>';return}
+  tb.innerHTML=snaps.map(s=>`<tr>
+    <td>${s.per}<br><span style="font-size:9px;color:#bbb">Salvo ${s.at}</span></td>
+    <td class="hval">${(+s.act).toLocaleString('pt-BR')}</td>
+    <td class="hval">${(+s.cor).toLocaleString('pt-BR')}</td>
+    <td>${s.rec}</td>
+    <td>${(+s.ind).toLocaleString('pt-BR')}</td>
+    <td style="font-size:10px">${s.nota||'—'}</td>
+    <td><span class="src-pill ${s.src==='sheets'?'sp-sheets':'sp-local'}">${s.src==='sheets'?'📊 Sheets':'💾 Local'}</span></td>
+    <td class="no-print"><button class="delbtn" onclick="delSnap(${s.id})">🗑</button></td>
+  </tr>`).join('');
+}
+
+async function delSnap(id){
+  if(!confirm('Remover este snapshot do histórico?'))return;
+  // Remove local
+  const s=lsLoad().filter(x=>x.id!=id);lsSave(s);renderHist(s);updateSel(s);
+  // Remove do Sheets
+  if(APPS_URL){
+    try{
+      await fetch(APPS_URL,{
+        method:'POST',
+        body:JSON.stringify({acao:'deletar',id})
+      });
+    }catch(e){console.warn('delete sheets error:',e)}
+  }
+}
+function updateSel(snaps){
+  if(!snaps)snaps=lsLoad();
+  const sel=document.getElementById('snap-sel');
+  sel.innerHTML='<option value="">— Carregar snapshot —</option>'+
+    snaps.map(s=>`<option value="${s.id}">${s.per} (${s.at})</option>`).join('');
+}
+function loadSnap(id){
+  if(!id)return;
+  const s=lsLoad().find(x=>x.id==id);if(!s)return;
+  document.getElementById('k-act').textContent=(+s.act).toLocaleString('pt-BR');
+  document.getElementById('k-cor').textContent=(+s.cor).toLocaleString('pt-BR');
+  document.getElementById('k-ind').textContent=(+s.ind).toLocaleString('pt-BR');
+  document.getElementById('k-rec').textContent=s.rec;
+  document.getElementById('hdr-period').textContent=s.per;
+  document.getElementById('hdr-date').textContent=s.at;
+}
+function clearSnap(){
+  document.getElementById('snap-sel').value='';
+  document.getElementById('k-act').textContent='1.922';
+  document.getElementById('k-cor').textContent='1.309';
+  document.getElementById('k-ind').textContent='4.203';
+  document.getElementById('k-rec').textContent='R$ 2,4M';
+  document.getElementById('hdr-period').textContent='Maio 2026';
+  document.getElementById('hdr-date').textContent='25/05/2026';
+}
+function toggleHist(){
+  const s=document.getElementById('hist-sec');
+  s.classList.toggle('open');
+  if(s.classList.contains('open')){s.scrollIntoView({behavior:'smooth'});refreshHist()}
+}
+
+// ════════════════════════════════════════
+//  OKR BARS
+// ════════════════════════════════════════
+function renderOKR(){
+  [[OKR.act,'p1','b1'],[OKR.cor,'p2','b2']].forEach(([o,pi,bi])=>{
+    const p=Math.min(Math.round(o.real/o.meta*100),100);
+    document.getElementById(pi).textContent=p+'%';
+    document.getElementById(bi).style.width=p+'%';
+  });
+}
+
+// ════════════════════════════════════════
+//  STATUS / BARRAS
+// ════════════════════════════════════════
+function hbar(lbl,val,meta,color){
+  const p=Math.min(Math.round(val/meta*100),100);
+  return`<div class="hbar-item">
+    <div class="hbar-head"><span class="hbar-lbl">${lbl}</span><span class="hbar-nums">${val.toLocaleString('pt-BR')} / ${meta.toLocaleString('pt-BR')}</span></div>
+    <div class="hbar-bg"><div class="hbar-fill" style="width:${p}%;background:${color}"></div></div>
+  </div>`;
+}
+function renderStatus(){
+  const last=WEEKLY[WEEKLY.length-1];
+  document.getElementById('status-bars').innerHTML=
+    hbar('New Actives',last.a,1967,'#FE3E6D')+
+    hbar('Coraliados Indicantes',last.c,1950,'#FFB3C6')+
+    hbar('Indicações',last.i,4000,'#e8940a');
+
+  const maio=WEEKLY.filter(d=>d.w.includes('/05'));
+  document.getElementById('maio-bars').innerHTML=maio.map(d=>`
+    <div style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--body);margin-bottom:4px">
+        <span>Semana ${d.w}</span>
+        <span style="font-weight:600">NA: ${d.a.toLocaleString('pt-BR')} · Cor: ${d.c.toLocaleString('pt-BR')}</span>
+      </div>
+      <div style="display:flex;gap:4px">
+        <div style="flex:1"><div class="hbar-bg"><div class="hbar-fill" style="width:${Math.min(Math.round(d.a/1967*100),100)}%;background:#FE3E6D"></div></div></div>
+        <div style="flex:1"><div class="hbar-bg"><div class="hbar-fill" style="width:${Math.min(Math.round(d.c/1950*100),100)}%;background:#FFB3C6"></div></div></div>
+      </div>
+    </div>`).join('');
+
+  // Taxas de conversão — semana 25/05/2026 (mesmo recorte dos demais indicadores)
+  const convData = [
+    {lbl:'Conversão Ind → NA', val:45.7, meta:55, color:'#FE3E6D', fmt:'45,7%'},
+    {lbl:'Taxa Conv. Comunicação', val:13, meta:30, color:'#FFB3C6', fmt:'13%'},
+  ];
+  document.getElementById('conv-bars').innerHTML = convData.map(d => {
+    const p = Math.min(Math.round(d.val/d.meta*100),100);
+    return `<div class="hbar-item">
+      <div class="hbar-head"><span class="hbar-lbl">${d.lbl}</span><span class="hbar-nums">${d.fmt}</span></div>
+      <div class="hbar-bg"><div class="hbar-fill" style="width:${p}%;background:${d.color}"></div></div>
+    </div>`;
+  }).join('');
+
+  // Pace médio S2-S4 maio: NA +597/sem · Cor +393/sem · ~0.6 semanas restantes (25→31/05)
+  const paceAct=597, paceCor=393, semanasRest=0.6;
+  const forecastActives=Math.round(1922+paceAct*semanasRest);    // 2.280
+  const forecastCoraliados=Math.round(1309+paceCor*semanasRest); // 1.545
+  const metaActives=1967, metaCoraliados=1950;
+  const pctMetaAct=Math.round(forecastActives/metaActives*100);
+  const pctMetaCor=Math.round(forecastCoraliados/metaCoraliados*100);
+  const corAct=pctMetaAct>=100?'#3db87a':pctMetaAct>=80?'#e8940a':'#FE3E6D';
+  const corCor=pctMetaCor>=100?'#3db87a':pctMetaCor>=80?'#e8940a':'#FE3E6D';
+
+  document.getElementById('partial-reads').innerHTML=[
+    {
+      icon:'🔮',
+      title:'Se mantivermos esse ritmo...',
+      txt:`Maio deve fechar com <strong style="color:${corAct}">${forecastActives.toLocaleString('pt-BR')} New Actives</strong> (${pctMetaAct}% da meta) e <strong style="color:${corCor}">${forecastCoraliados.toLocaleString('pt-BR')} Coraliados Indicantes</strong> (${pctMetaCor}% da meta). Estimativa baseada no pace médio das últimas 3 semanas e ~3 dias úteis restantes no mês.`
+    },
+  ].map(r=>`<div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:16px">
+    <div class="qual-ico-wrap" style="width:30px;height:30px;font-size:14px">${r.icon}</div>
+    <div>
+      <div style="font-size:12px;font-weight:600;color:var(--ink);margin-bottom:2px">${r.title}</div>
+      <div style="font-size:11px;color:var(--body);line-height:1.6">${r.txt}</div>
+    </div>
+  </div>`).join('');
+}
+
+// ════════════════════════════════════════
+//  CHARTS
+// ════════════════════════════════════════
+let wCI=null, mCI=null;
+
+// ── Filtro Semanal ──────────────────────────────
+let wFilterType='year', wFilterVal='all';
+
+function setWFilter(btn, type, val){
+  wFilterType=type; wFilterVal=val;
+  // Limpa botões do grupo correspondente
+  if(type==='year') ['wy-all','wy-2025','wy-2026'].forEach(id=>{ const b=document.getElementById(id); if(b) b.classList.remove('on'); });
+  if(type==='q')    ['wq-q1','wq-q2','wq-q3','wq-q4'].forEach(id=>{ const b=document.getElementById(id); if(b) b.classList.remove('on'); });
+  // Se clicou em ano, limpa trimestre; se clicou em trimestre, limpa ano (exceto "Tudo")
+  if(type==='year') ['wq-q1','wq-q2','wq-q3','wq-q4'].forEach(id=>{ const b=document.getElementById(id); if(b) b.classList.remove('on'); });
+  if(type==='q')    ['wy-all','wy-2025','wy-2026'].forEach(id=>{ const b=document.getElementById(id); if(b) b.classList.remove('on'); });
+  btn.classList.add('on');
+  renderWeekly();
+}
+
+function getMonthFromWeek(w){
+  // w = 'DD/MM' ou 'DD/MM/YY'
+  const parts = w.split('/');
+  return parseInt(parts[1]);
+}
+function getYearFromWeek(w){
+  const parts = w.split('/');
+  // se tiver ano no formato DD/MM/YY ou DD/MM/YYYY
+  if(parts.length >= 3) return '20'+parts[2].slice(-2);
+  // inferir pelo mês — jan-mai = 2026, jun-dez = 2025 (baseado nos dados disponíveis)
+  const m = parseInt(parts[1]);
+  return m <= 5 ? '2026' : '2025';
+}
+function getQFromMonth(m){
+  if(m<=3) return 'Q1';
+  if(m<=6) return 'Q2';
+  if(m<=9) return 'Q3';
+  return 'Q4';
+}
+
+function filteredWeekly(){
+  if(wFilterType==='year' && wFilterVal==='all') return WEEKLY;
+  if(wFilterType==='year') return WEEKLY.filter(d => getYearFromWeek(d.w) === wFilterVal);
+  if(wFilterType==='q'){
+    return WEEKLY.filter(d => getQFromMonth(getMonthFromWeek(d.w)) === wFilterVal);
+  }
+  return WEEKLY;
+}
+
+// ── Filtro Mensal ──────────────────────────────
+let mFilterType='year', mFilterVal='all';
+
+function setMFilter(btn, type, val){
+  mFilterType=type; mFilterVal=val;
+  if(type==='year') ['my-all','my-2024','my-2025','my-2026'].forEach(id=>{ const b=document.getElementById(id); if(b) b.classList.remove('on'); });
+  if(type==='q')    ['mq-q1','mq-q2','mq-q3','mq-q4'].forEach(id=>{ const b=document.getElementById(id); if(b) b.classList.remove('on'); });
+  if(type==='year') ['mq-q1','mq-q2','mq-q3','mq-q4'].forEach(id=>{ const b=document.getElementById(id); if(b) b.classList.remove('on'); });
+  if(type==='q')    ['my-all','my-2024','my-2025','my-2026'].forEach(id=>{ const b=document.getElementById(id); if(b) b.classList.remove('on'); });
+  btn.classList.add('on');
+  renderMonthly();
+}
+
+function getYearFromMonth(m){ return m.split('/')[1]; } // 'jan/25' → '25'
+function getQFromMonthStr(m){
+  const monthMap={jan:1,fev:2,mar:3,abr:4,mai:5,jun:6,jul:7,ago:8,set:9,out:10,nov:11,dez:12};
+  const num = monthMap[m.split('/')[0]];
+  return getQFromMonth(num);
+}
+
+function filteredMonthly(){
+  if(mFilterType==='year' && mFilterVal==='all') return MONTHLY;
+  if(mFilterType==='year'){
+    const yy = mFilterVal.slice(-2); // '2025' → '25'
+    return MONTHLY.filter(d => d.m.split('/')[1] === yy);
+  }
+  if(mFilterType==='q'){
+    return MONTHLY.filter(d => getQFromMonthStr(d.m) === mFilterVal);
+  }
+  return MONTHLY;
+}
+function renderWeekly(){
+  const data=filteredWeekly(),ctx=document.getElementById('wChart').getContext('2d');
+  if(wCI)wCI.destroy();
+  wCI=new Chart(ctx,{type:'bar',
+    data:{labels:data.map(d=>d.w),datasets:[
+      {label:'New Actives',data:data.map(d=>d.a),backgroundColor:'#FE3E6D',borderRadius:4,borderSkipped:false},
+      {label:'Coraliados Indicantes',data:data.map(d=>d.c),backgroundColor:'#FFB3C6',borderRadius:4,borderSkipped:false},
+    ]},
+    options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.dataset.label}: ${c.raw.toLocaleString('pt-BR')}`}}},
+      scales:{x:{grid:{display:false},ticks:{font:{family:F,size:9},color:'#aaa'}},
+              y:{grid:{color:'#f5f5f5'},ticks:{font:{family:F,size:9},color:'#aaa'}}}}
+  });
+}
+function renderMonthly(){
+  const data=filteredMonthly();
+  // Atualiza título
+  const t=document.getElementById('monthly-title');
+  if(t) t.textContent = data.length===MONTHLY.length
+    ? 'Evolução Mensal — Set/2024 → Abr/2026'
+    : `Evolução Mensal — ${data[0]?.m||''} → ${data[data.length-1]?.m||''}`;
+  const ctx=document.getElementById('mChart').getContext('2d');
+  if(mCI) mCI.destroy();
+  mCI=new Chart(ctx,{type:'bar',
+    data:{labels:data.map(d=>d.m),datasets:[
+      {label:'New Actives',data:data.map(d=>d.a),backgroundColor:'#FE3E6D',borderRadius:4,borderSkipped:false,yAxisID:'y'},
+      {label:'Coraliados',data:data.map(d=>d.c),backgroundColor:'#FFB3C6',borderRadius:4,borderSkipped:false,yAxisID:'y'},
+      {label:'Receita',data:data.map(d=>d.r>0?Math.round(d.r/1000):null),type:'line',
+       borderColor:'#e8940a',backgroundColor:'rgba(232,148,10,.08)',borderWidth:2,
+       pointRadius:3,pointBackgroundColor:'#e8940a',tension:.3,yAxisID:'y2',spanGaps:false}
+    ]},
+    options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.dataset.yAxisID==='y2'?` Receita: R$ ${(c.raw*1000).toLocaleString('pt-BR')}`:` ${c.dataset.label}: ${c.raw?.toLocaleString('pt-BR')||'—'}`}}},
+      scales:{x:{grid:{display:false},ticks:{font:{family:F,size:9},color:'#aaa',maxRotation:45}},
+              y:{grid:{color:'#f5f5f5'},ticks:{font:{family:F,size:9},color:'#aaa'},position:'left'},
+              y2:{position:'right',grid:{display:false},ticks:{font:{family:F,size:9},color:'#e8940a',callback:v=>`${v}k`}}}}
+  });
+}
+
+// ════════════════════════════════════════
+//  QUALITATIVO
+// ════════════════════════════════════════
+const DEF=[
+  {icon:'👥',title:'Alavancas - Coraliados indicantes',text:'Conversei com a Kelle, estamos definindo campanhas para aumentar o engajamento e constância dos coraliados. Inicialmente, vamos investir em capacitação. Ex: parceiros que mantiverem indicações ao longo dos meses, vão conseguir acesso à mentoria exclusiva.'},
+  {icon:'📊',title:'Estudo de retenção (coraliados indicantes)',text:'Avançamos em uma etapa: Planilha de acompanhamento e estudo já pronta, junto à cadência. A Ma está atuando ativamente hoje e amanhã. Pode ser acompanhada aqui: https://docs.google.com/spreadsheets/d/1wkoqlitT_Fez8IOh5dvS2tKIC0tC5_O3WD1__NyoZkw?usp=sharing'},
+  {icon:'⚡',title:'New actives (aumentar conversão)',text:'Régua de comunicação semanal segmentada por comportamento, também ensino e reforço de conversão da indicação para new actives.'},
+  {icon:'⚠️',title:'Pontos de atenção',text:'Coraliados indicantes - alavancas já estabelecidas!'},
+  {icon:'💡',title:'Voz dos parceiros (qualitativo)',text:'A Scooto mencionou a alta de devolutiva às mensagens citando IRPF. Parceiros mencionaram que não conseguiriam nem participar da mentoria exclusiva sobre liderança e gestão de pessoas. Isso pode ter bastante influência no resultado também e performance desse mês em específico.'},
+];
+function gQ(){return DEF}
+function sQ(d){localStorage.setItem('lt_qual',JSON.stringify(d))}
+function renderQual(){
+  const data=gQ();
+  document.getElementById('qual-list').innerHTML=data.map((q,i)=>{
+    const icon = q.icon||'💡';
+    const title= q.title||'Sem título';
+    const text = q.text||'';
+    return `<div class="qual-item" id="qi-${i}">
+      <div class="qual-ico-wrap">${icon}</div>
+      <div class="qual-body">
+        <div class="qual-trow">
+          <span class="qual-title" id="qtitle-${i}">${title}</span>
+          <button class="qual-ebtn no-print" onclick="eQ(${i})">✏ editar</button>
+        </div>
+        <div class="qual-text" id="qt-${i}">${text}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function eQ(i){
+  const d=gQ();
+  const titleEl=document.getElementById('qtitle-'+i);
+  const textEl =document.getElementById('qt-'+i);
+  if(!titleEl||!textEl) return;
+  titleEl.outerHTML=`<input class="qual-ta" id="qtitle-input-${i}" value="${d[i].title}" style="font-size:13px;font-weight:600;padding:4px 8px;margin-bottom:4px;width:100%">`;
+  textEl.outerHTML =`<textarea class="qual-ta" id="qta-${i}">${d[i].text}</textarea><button class="qual-sbtn" onclick="svQ(${i})">Salvar</button>`;
+}
+function svQ(i){
+  const d=gQ();
+  const ti=document.getElementById('qtitle-input-'+i);
+  const ta=document.getElementById('qta-'+i);
+  if(ti) d[i].title=ti.value;
+  if(ta) d[i].text =ta.value;
+  sQ(d);renderQual();
+}
+function addQual(){const d=gQ();d.push({icon:'💡',title:'Nova percepção',text:'Clique em editar para preencher.'});sQ(d);renderQual()}
+
+// ════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════
+document.addEventListener('DOMContentLoaded',()=>{
+  renderOKR();renderWeekly();renderMonthly();renderStatus();renderQual();
+  const l=lsLoad();renderHist(l);updateSel(l);
+  document.getElementById('modal-ov').addEventListener('click',e=>{if(e.target.id==='modal-ov')closeModal()});
+});
+</script>
+</body>
+</html>
